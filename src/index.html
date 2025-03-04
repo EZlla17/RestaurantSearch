@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>INFO4310-HW3</title>
+    
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.1.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.1.0/mapbox-gl-geocoder.css">
+
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+        .map-container {
+            flex: 2;
+            height: 100vh;
+            position: relative;
+        }
+        .sidebar {
+            flex: 1;
+            height: 100vh;
+            background: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #555;
+            border-left: 2px solid #ccc;
+            padding: 20px;
+        }
+        #mapCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        button {
+            padding: 10px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        #location-info {
+            font-size: 14px;
+            color: #333;
+            margin-top: 10px;
+        }
+        .mapboxgl-ctrl-geocoder {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 50%;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="map-container">
+        <div id="mapCanvas"></div>
+    </div>
+
+    <div class="sidebar">
+        <button id="selectLocationBtn">Select Location</button>
+        <div id="location-info">Click the button to start selecting</div>
+    </div>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1Ijoia3g2NCIsImEiOiJjbGkzd2E1dmsxMzNoM2twY2p2azF0bGVlIn0.t_v73kaAMUtoGBPESpw3uA';
+
+        const map = new mapboxgl.Map({
+            container: 'mapCanvas',
+            style: 'mapbox://styles/mapbox/light-v11',
+            center: [-71.0589, 42.3601],
+            zoom: 12
+        });
+
+        map.addControl(new mapboxgl.NavigationControl());
+
+        const geocoder = new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl
+        });
+
+        map.addControl(geocoder, 'top-left');
+
+        let jsonData = null;
+        let categoryColors = {};
+        let selectMode = false;
+        let marker = null;
+
+        document.getElementById("selectLocationBtn").addEventListener("click", () => {
+            selectMode = true;
+            document.getElementById("location-info").innerText = "Click on the map to select a location.";
+        });
+
+        map.on("click", (e) => {
+            if (!selectMode) return;
+
+            const { lng, lat } = e.lngLat;
+
+            if (marker) {
+                marker.setLngLat([lng, lat]);
+            } else {
+                marker = new mapboxgl.Marker()
+                    .setLngLat([lng, lat])
+                    .addTo(map);
+            }
+
+            map.flyTo({ center: [lng, lat], zoom: 15 });
+
+            document.getElementById("location-info").innerText = `Selected Location: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+            selectMode = false;
+        });
+
+        // Load JSON
+        async function loadJSON() {
+            try {
+                const response = await fetch('yelp_boston_cleaned.json'); 
+                const data = await response.json();
+                jsonData = data; // Store the JSON data
+
+                assignColors(jsonData);
+                renderData(jsonData);
+
+            } catch (error) {
+                console.error("Error loading local JSON:", error);
+            }
+        }
+
+        // Assign unique colors to categories dynamically
+        function assignColors(data) {
+            const uniqueCategories = [...new Set(data.map(f => f.category1 || "Other"))];
+            const colorScale = d3.scaleOrdinal(d3.schemeSet3);
+            
+            categoryColors = uniqueCategories.reduce((acc, category) => {
+                acc[category] = colorScale(category);
+                return acc;
+            }, {});
+        }
+
+        // visualize data on the map start here
+        function renderData(data) {
+            if (map.getSource('locations')) {
+                map.removeLayer('dots');
+                map.removeSource('locations');
+            }
+
+            // Add each point manually from JSON
+            map.addSource('locations', {
+                type: 'geojson',
+                data: {
+                    type: 'FeatureCollection',
+                    features: data.map(location => ({
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [location.longitude, location.latitude]
+                        },
+                        properties: {
+                            name: location.name,
+                            category1: location.category1 || "Other"
+                        }
+                    }))
+                }
+            });
+
+            // Add layer for colored dots
+            map.addLayer({
+                id: 'dots',
+                type: 'circle',
+                source: 'locations',
+                paint: {
+                    'circle-radius': 5,
+                    'circle-opacity': 0.8,
+                    'circle-color': [
+                        'match',
+                        ['get', 'category1'],
+                        ...Object.entries(categoryColors).flat(),
+                        '#aaaaaa' // Default color if no match
+                    ]
+                }
+            });
+        }
+
+        map.on('load', loadJSON);
+    </script>
+
+</body>
+</html>
