@@ -135,6 +135,9 @@
         const ratingGroup = details.append("g")
             .attr("transform", "translate(25, 80)");
 
+        const yelpLink = details.append("a")
+            .attr("target", "_blank");
+
         const snippetRect = details.append("rect")
             .attr("x", 40)
             .attr("y", 145)
@@ -143,6 +146,7 @@
             .attr("transform", "translate(60, 170)")
             .style("font-size", "15px")
             .style("fill", "#555");
+
 
         function wrapText(text, maxCharsPerLine) {
             if (!text) return []; // Handle null or empty text
@@ -239,7 +243,9 @@
                             name: location.name,
                             category1: location.category1 || "Other",
                             comment: location.snippet_text,
-                            rating: location.rating
+                            rating: location.rating,
+                            link: location.url,
+                            location: location.location_json
                         }
                     }))
                 }
@@ -276,12 +282,13 @@
             let lastHoveredFeatureId = null;
 
             map.on('mouseenter', 'dots', (e) => {
-                // Optionally, hide the details on mouse leave
-                snippetGroup.selectAll("*").remove();  // Remove text
+
+                yelpLink.selectAll("*").remove();
+                snippetGroup.selectAll("*").remove();
                 details.selectAll("image").remove();
                 ratingGroup.selectAll("*").remove();
-                details.attr("height", 0);  // Set height to 0 to hide the details
-                rect.attr("height", 0);  // Set height to 0 to hide the rectangle
+                details.attr("height", 0);
+                rect.attr("height", 0);
                 map.getCanvas().style.cursor = 'pointer';
                 const properties = e.features[0].properties;
                 const coordinates = e.features[0].geometry.coordinates;
@@ -328,13 +335,12 @@
                         .text(line);
                 });
 
-                // Make sure your SVG has enough height to display all the lines
-
                 const detailsHeight = Math.max(150, 170 + wrappedLines.length * 25);
                 details.attr("height", detailsHeight);
-                rect.attr("height", detailsHeight) // Dynamically set height
-                    .attr("width", "100%") // Subtract some padding (15px from both sides)
-                    .attr("fill", categoryColors[properties.category1] || '#aaaaaa') // Category color or default
+                rect.attr("height", detailsHeight)
+                    .attr("width", "100%")
+                    .attr("fill", categoryColors[properties.category1] || '#aaaaaa')
+                    .attr("opacity", 0.6);
 
                 snippetRect.attr("height", wrappedLines.length * 25)
                     .attr("width", 400)
@@ -348,10 +354,10 @@
                 const shadow = details.append("defs")
                     .append("filter")
                     .attr("id", "shadow2")
-                    .attr("x", "-100%")    // Increased from -50% to -100%
-                    .attr("y", "-100%")    // Increased from -50% to -100%
-                    .attr("width", "300%") // Increased from 200% to 300%
-                    .attr("height", "300%") // Increased from 200% to 300%
+                    .attr("x", "-100%")
+                    .attr("y", "-100%")
+                    .attr("width", "300%")
+                    .attr("height", "300%")
                     .attr("filterUnits", "userSpaceOnUse");
 
                 shadow.append("feDropShadow")
@@ -359,7 +365,7 @@
                     .attr("dy", 2)
                     .attr("stdDeviation", 3)
                     .attr("flood-color", "rgba(0, 0, 0, 0.3)")
-                    .attr("flood-opacity", 0.3);  // Added opacity control
+                    .attr("flood-opacity", 0.3);
 
                 categoryRect.attr("width", categoryTextBBox.width + 30)
                     .attr("height", 30)
@@ -368,8 +374,8 @@
                     .attr("fill", "white")
                     .attr("filter", "url(#shadow)");
 
-                details.append("image")  // Use 'image' instead of 'img' for SVG images
-                    .attr("xlink:href", "chat.png")  // Specify the image source
+                details.append("image")
+                    .attr("xlink:href", "chat.png")
                     .attr("width", 20)
                     .attr("height", 20)
                     .attr("x", 20.3)
@@ -390,20 +396,72 @@
                         .style("opacity", i < rating ? 1 : 0.5);
                 }
 
+                yelpLink.append("image")
+                    .attr("x", 400)
+                    .attr("y", 70)
+                    .attr("width", 40)
+                    .attr("height", 40)
+                    .attr("xlink:href", "yelp.png")
+                    .attr("filter", "url(#shadow)")
+                    .on("mouseenter", function () {
+
+                        var img = d3.select(this);
+                        var originalWidth = 40;
+                        var originalHeight = 40;
+                        var scaleFactor = 1.25;
+                        var newWidth = originalWidth * scaleFactor;
+                        var newHeight = originalHeight * scaleFactor;
+                        var offsetX = (newWidth - originalWidth) / 2;
+                        var offsetY = (newHeight - originalHeight) / 2;
+
+                        img.transition()
+                            .duration(300)
+                            .attr("width", newWidth)
+                            .attr("height", newHeight)
+                            .attr("x", 400 - offsetX)
+                            .attr("y", 70 - offsetY);
+                    })
+                    .on("mouseleave", function () {
+
+                        var img = d3.select(this);
+                        var originalWidth = 40;
+                        var originalHeight = 40;
+
+                        img.transition()
+                            .duration(300)
+                            .attr("width", originalWidth)
+                            .attr("height", originalHeight)
+                            .attr("x", 400)
+                            .attr("y", 70);
+                    });
+
+
+                const loc = properties.location;
+                console.log(loc);
+
+                console.log(loc.display_address);
+
+                // Append the displayLocation as text
+                details.append("text")
+                    .attr("class", "displaylocation")  // Correct way to set the class
+                    .attr("x", 200)
+                    .attr("y", 70)
+                    .text(displayLocation)
+                    .attr("fill", "black");
+
 
 
             });
 
             map.on('mouseleave', 'dots', () => {
-                map.getCanvas().style.cursor = '';  // Reset the cursor
+                map.getCanvas().style.cursor = '';
 
-                // Reset the hover state for the feature
                 if (lastHoveredFeatureId !== null) {
                     map.setFeatureState(
                         { source: 'locations', id: lastHoveredFeatureId },
                         { hover: false }
                     );
-                    lastHoveredFeatureId = null; // Reset the stored feature ID
+                    lastHoveredFeatureId = null;
                 }
 
             });
