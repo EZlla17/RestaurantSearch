@@ -272,6 +272,11 @@
             let lastHoveredFeatureId = null;
 
             map.on('mouseenter', 'dots', (e) => {
+                // Optionally, hide the details on mouse leave
+                snippetGroup.selectAll("*").remove();  // Remove text
+                details.selectAll("image").remove();
+                details.attr("height", 0);  // Set height to 0 to hide the details
+                rect.attr("height", 0);  // Set height to 0 to hide the rectangle
                 map.getCanvas().style.cursor = 'pointer';
                 const properties = e.features[0].properties;
                 const coordinates = e.features[0].geometry.coordinates;
@@ -326,13 +331,43 @@
                     .attr("width", "100%") // Subtract some padding (15px from both sides)
                     .attr("fill", categoryColors[properties.category1] || '#aaaaaa') // Category color or default
 
-                    snippetRect.attr("height", wrappedLines.length * 25) 
+                snippetRect.attr("height", wrappedLines.length * 25)
                     .attr("width", 400)
                     .attr("fill", "white")
                     .attr("rx", 10)
                     .attr("ry", 10)
-                    .attr("opacity",0.6)
+                    .attr("opacity", 0.6)
                     .attr("filter", "url(#shadow)");
+
+
+                const shadow = details.append("defs")
+                    .append("filter")
+                    .attr("id", "shadow2")
+                    .attr("x", "-50%")
+                    .attr("y", "-50%")
+                    .attr("width", "200%")
+                    .attr("height", "200%");
+
+                shadow.append("feDropShadow")
+                    .attr("dx", -1)
+                    .attr("dy", 2)
+                    .attr("stdDeviation", 3)
+                    .attr("flood-color", "rgba(0, 0, 0, 0.3)")
+
+                categoryRect.attr("width", categoryTextBBox.width + 30)
+                    .attr("height", 30)
+                    .attr("rx", 10)
+                    .attr("ry", 10)
+                    .attr("fill", "white")
+                    .attr("filter", "url(#shadow)");
+
+                details.append("image")  // Use 'image' instead of 'img' for SVG images
+                    .attr("xlink:href", "chat.png")  // Specify the image source
+                    .attr("width", 20)
+                    .attr("height", 20)
+                    .attr("x", 21)
+                    .attr("y", 160)
+                    .attr("filter", "url(#shadow2)");
 
             });
 
@@ -348,10 +383,6 @@
                     lastHoveredFeatureId = null; // Reset the stored feature ID
                 }
 
-                // Optionally, hide the details on mouse leave
-                snippetGroup.selectAll("*").remove();  // Remove text
-                details.attr("height", 0);  // Set height to 0 to hide the details
-                rect.attr("height", 0);  // Set height to 0 to hide the rectangle
             });
         }
 
