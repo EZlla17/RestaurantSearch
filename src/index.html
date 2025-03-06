@@ -120,24 +120,27 @@
         const nameText = details.append("text")
             .attr("x", 25)
             .attr("y", 50)
-            .style("font-size", "30px")
+            .style("font-size", "25px")
             .style("font-weight", "bold");
 
         const categoryRect = details.append("rect")
             .attr("x", 25)
-            .attr("y", 65)
+            .attr("y", 95)
 
         const categoryText = details.append("text")
             .attr("x", 40)
-            .attr("y", 85)
+            .attr("y", 115)
             .style("font-size", "14px");
+
+        const ratingGroup = details.append("g")
+            .attr("transform", "translate(25, 80)");
 
         const snippetRect = details.append("rect")
             .attr("x", 40)
-            .attr("y", 115)
+            .attr("y", 145)
 
         const snippetGroup = details.append("g")
-            .attr("transform", "translate(60, 140)")
+            .attr("transform", "translate(60, 170)")
             .style("font-size", "15px")
             .style("fill", "#555");
 
@@ -235,7 +238,8 @@
                         properties: {
                             name: location.name,
                             category1: location.category1 || "Other",
-                            comment: location.snippet_text
+                            comment: location.snippet_text,
+                            rating: location.rating
                         }
                     }))
                 }
@@ -275,6 +279,7 @@
                 // Optionally, hide the details on mouse leave
                 snippetGroup.selectAll("*").remove();  // Remove text
                 details.selectAll("image").remove();
+                ratingGroup.selectAll("*").remove();
                 details.attr("height", 0);  // Set height to 0 to hide the details
                 rect.attr("height", 0);  // Set height to 0 to hide the rectangle
                 map.getCanvas().style.cursor = 'pointer';
@@ -325,7 +330,7 @@
 
                 // Make sure your SVG has enough height to display all the lines
 
-                const detailsHeight = Math.max(150, 140 + wrappedLines.length * 25);
+                const detailsHeight = Math.max(150, 170 + wrappedLines.length * 25);
                 details.attr("height", detailsHeight);
                 rect.attr("height", detailsHeight) // Dynamically set height
                     .attr("width", "100%") // Subtract some padding (15px from both sides)
@@ -343,16 +348,18 @@
                 const shadow = details.append("defs")
                     .append("filter")
                     .attr("id", "shadow2")
-                    .attr("x", "-50%")
-                    .attr("y", "-50%")
-                    .attr("width", "200%")
-                    .attr("height", "200%");
+                    .attr("x", "-100%")    // Increased from -50% to -100%
+                    .attr("y", "-100%")    // Increased from -50% to -100%
+                    .attr("width", "300%") // Increased from 200% to 300%
+                    .attr("height", "300%") // Increased from 200% to 300%
+                    .attr("filterUnits", "userSpaceOnUse");
 
                 shadow.append("feDropShadow")
                     .attr("dx", -1)
                     .attr("dy", 2)
                     .attr("stdDeviation", 3)
                     .attr("flood-color", "rgba(0, 0, 0, 0.3)")
+                    .attr("flood-opacity", 0.3);  // Added opacity control
 
                 categoryRect.attr("width", categoryTextBBox.width + 30)
                     .attr("height", 30)
@@ -365,9 +372,25 @@
                     .attr("xlink:href", "chat.png")  // Specify the image source
                     .attr("width", 20)
                     .attr("height", 20)
-                    .attr("x", 21)
+                    .attr("x", 20.3)
                     .attr("y", 160)
-                    .attr("filter", "url(#shadow2)");
+                    .attr("filter", "url(#shadow2)")
+                    .attr("opacity", 0.6);
+
+
+                const rating = parseInt(properties.rating, 10);
+                const maxStars = 5;
+
+                for (let i = 0; i < maxStars; i++) {
+                    ratingGroup.append("text")
+                        .attr("x", 30 * i)
+                        .attr("y", 0)
+                        .attr("font-size", "22px")
+                        .text(i < rating ? "\u2B50" : "\u2606")
+                        .style("opacity", i < rating ? 1 : 0.5);
+                }
+
+
 
             });
 
