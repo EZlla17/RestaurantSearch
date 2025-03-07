@@ -41,7 +41,7 @@
             border-radius: 10px;
         }
 
-        #details span{
+        #details span {
             display: block;
         }
 
@@ -54,7 +54,7 @@
         }
 
         #details-categories span {
-            display:inline-flex;
+            display: inline-flex;
             padding: 5px 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -65,7 +65,7 @@
         #toolbar {
             flex: 1;
             height: 100vh;
-            background:#fff7ed;
+            background: #fff7ed;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -81,7 +81,8 @@
             z-index: 2;
         }
 
-        #select-location, #filterbar{
+        #select-location,
+        #filterbar {
             margin: 10px;
             width: 100%;
             padding: 10px;
@@ -121,7 +122,8 @@
             cursor: pointer;
         }
 
-        #filter-close-btn:hover, #close-sidebar:hover {
+        #filter-close-btn:hover,
+        #close-sidebar:hover {
             color: #ef4444
         }
 
@@ -158,7 +160,8 @@
             border-radius: 5px;
         }
 
-        #apply-filters, #clear-filters{
+        #apply-filters,
+        #clear-filters {
             margin-top: 20px;
             padding: 8px;
         }
@@ -207,7 +210,7 @@
         }
 
         .category-btn.selected {
-            background:#fb923c;
+            background: #fb923c;
             color: white;
         }
 
@@ -275,21 +278,36 @@
             <div>
                 <div style="margin-top: 5px;">Choose one or more categories:</div>
                 <div id="category-container">
-                    <button class="category-btn" data-category="pizza"><span class="emoji">🍕</span><span class="label">Pizza</span></button>
-                    <button class="category-btn" data-category="sandwiches"><span class="emoji">🥪</span><span class="label">Sandwiches</span></button>
-                    <button class="category-btn" data-category="sushi"><span class="emoji">🍣</span><span class="label">Sushi</span></button>
-                    <button class="category-btn" data-category="newamerican"><span class="emoji">🍔</span><span class="label">American</span></button>
-                    <button class="category-btn" data-category="italian"><span class="emoji">🍝</span><span class="label">Italian</span></button>
-                    <button class="category-btn" data-category="japanese"><span class="emoji">🍱</span><span class="label">Japanese</span></button>
-                    <button class="category-btn" data-category="mexican"><span class="emoji">🌮</span><span class="label">Mexican</span></button>
-                    <button class="category-btn" data-category="chinese"><span class="emoji">🥟</span><span class="label">Chinese</span></button>
-                    <button class="category-btn" data-category="vietnamese thai"><span class="emoji">🍲</span><span class="label">Vietnamese<br>/ Thai</span></button>
-                    <button class="category-btn" data-category="indpak"><span class="emoji">🍛</span><span class="label">Indian</span></button>
-                    <button class="category-btn" data-category="french"><span class="emoji">🥘</span><span class="label">French</span></button>
-                    <button class="category-btn" data-category="restaurants"><span class="emoji">🍽️</span><span class="label">Restaurants</span></button>
-                    <button class="category-btn" data-category="bakeries donuts"><span class="emoji">🍞</span><span class="label">Bakeries<br>/ Donuts</span></button>
-                    <button class="category-btn" data-category="coffee cafes"><span class="emoji">☕</span><span class="label">Coffee<br>/ Cafes</span></span></button>
-                    <button class="category-btn" data-category="ethnicmarkets"><span class="emoji">🥗</span><span class="label">Ethnic Markets</span></button>
+                    <button class="category-btn" data-category="pizza"><span class="emoji">🍕</span><span
+                            class="label">Pizza</span></button>
+                    <button class="category-btn" data-category="sandwiches"><span class="emoji">🥪</span><span
+                            class="label">Sandwiches</span></button>
+                    <button class="category-btn" data-category="sushi"><span class="emoji">🍣</span><span
+                            class="label">Sushi</span></button>
+                    <button class="category-btn" data-category="newamerican"><span class="emoji">🍔</span><span
+                            class="label">American</span></button>
+                    <button class="category-btn" data-category="italian"><span class="emoji">🍝</span><span
+                            class="label">Italian</span></button>
+                    <button class="category-btn" data-category="japanese"><span class="emoji">🍱</span><span
+                            class="label">Japanese</span></button>
+                    <button class="category-btn" data-category="mexican"><span class="emoji">🌮</span><span
+                            class="label">Mexican</span></button>
+                    <button class="category-btn" data-category="chinese"><span class="emoji">🥟</span><span
+                            class="label">Chinese</span></button>
+                    <button class="category-btn" data-category="vietnamese thai"><span class="emoji">🍲</span><span
+                            class="label">Vietnamese<br>/ Thai</span></button>
+                    <button class="category-btn" data-category="indpak"><span class="emoji">🍛</span><span
+                            class="label">Indian</span></button>
+                    <button class="category-btn" data-category="french"><span class="emoji">🥘</span><span
+                            class="label">French</span></button>
+                    <button class="category-btn" data-category="restaurants"><span class="emoji">🍽️</span><span
+                            class="label">Restaurants</span></button>
+                    <button class="category-btn" data-category="bakeries donuts"><span class="emoji">🍞</span><span
+                            class="label">Bakeries<br>/ Donuts</span></button>
+                    <button class="category-btn" data-category="coffee cafes"><span class="emoji">☕</span><span
+                            class="label">Coffee<br>/ Cafes</span></span></button>
+                    <button class="category-btn" data-category="ethnicmarkets"><span class="emoji">🥗</span><span
+                            class="label">Ethnic Markets</span></button>
                 </div>
             </div>
             <div class="rating-container">
@@ -297,8 +315,10 @@
                     <span>Rating higher than:</span>
                     <span class="rating-value">3.5</span>
                 </div>
-                <img style="margin-left: 50px;" id="ratingImage" class="rating-img" src="stars35.png" alt="Rating Stars">
-                <input style="margin-left: 50px;" id="ratingSlider" class="rating-slider" type="range" min="0" max="3" step="1" value="0">
+                <img style="margin-left: 50px;" id="ratingImage" class="rating-img" src="stars35.png"
+                    alt="Rating Stars">
+                <input style="margin-left: 50px;" id="ratingSlider" class="rating-slider" type="range" min="0" max="3"
+                    step="1" value="0">
             </div>
             <div style="margin-left: 90px;">
                 <button id="apply-filters">Apply Filters</button>
@@ -315,7 +335,8 @@
     <div class="sidebar" style="font-size: 14px;">
         <button id="close-sidebar">×</button>
         <div id="details">
-            <span id="details-name" style="display: block; font-size: 22px; font-weight: 800; color: #f97316; margin-top: 10px; margin-bottom: 10px;">
+            <span id="details-name"
+                style="display: block; font-size: 22px; font-weight: 800; color: #f97316; margin-top: 10px; margin-bottom: 10px;">
             </span>
             <span id="details-location"></span>
             <span id="details-categories">
@@ -326,7 +347,8 @@
             <span id="details-link">
                 See details:
                 <a id="yelp-link" target="_blank" style="margin-left: 2px; margin-bottom: -10px;">
-                    <img id="yelp-image" src="yelp.png" alt="Yelp logo" style="width: 30px; height: 30px; margin-bottom: -8px;">
+                    <img id="yelp-image" src="yelp.png" alt="Yelp logo"
+                        style="width: 30px; height: 30px; margin-bottom: -8px;">
                 </a>
             </span>
         </div>
@@ -359,7 +381,7 @@
             ratingImage.src = images[index];
             ratingValue.textContent = ratings[index];
         });
-        
+
         // Location selector listener
         document.getElementById("selectLocationBtn").addEventListener("click", () => {
             selectMode = true;
@@ -513,8 +535,8 @@
                     'circle-stroke-width': [
                         'case',
                         ['boolean', ['feature-state', 'hover'], false],
-                        3, 
-                        0
+                        3,
+                        1
                     ],
                     'circle-stroke-color': '#d1d5db'
                 }
@@ -523,6 +545,8 @@
             let lastHoveredFeatureId = null;
 
             map.on('mouseenter', 'dots', (e) => {
+                
+                map.getCanvas().style.cursor = 'pointer';
                 const featureId = e.features[0].id;
 
                 // Reset the previous hovered feature
@@ -578,19 +602,23 @@
                 // document.getElementById("details-snippet").textContent = properties.comment ? `${properties.comment} 👉` : "";
 
                 const yelpLink = document.getElementById("yelp-link");
-                    yelpLink.href = properties.link;
-                });
+                yelpLink.href = properties.link;
+            });
 
-                document.getElementById("close-sidebar").addEventListener("click", () => {
-                    document.querySelector(".sidebar").style.display = "none";
-                    if (lastHoveredFeatureId !== null) {
-                        map.setFeatureState(
-                            { source: 'locations', id: lastHoveredFeatureId },
-                            { hover: false }
+            map.on('mouseleave', 'dots', () => {
+                map.getCanvas().style.cursor = '';
+            });
+
+            document.getElementById("close-sidebar").addEventListener("click", () => {
+                document.querySelector(".sidebar").style.display = "none";
+                if (lastHoveredFeatureId !== null) {
+                    map.setFeatureState(
+                        { source: 'locations', id: lastHoveredFeatureId },
+                        { hover: false }
                     );
                     lastHoveredFeatureId = null;
-            }
-        });
+                }
+            });
         }
 
         map.on('load', loadJSON);
