@@ -70,20 +70,20 @@
             align-items: center;
             font-size: 16px;
             border-right: 2px solid #ccc;
-            padding: 30px 25px;
-            padding-top: 25px;
+            padding: 20px 15px;
             transition: width 0.3s ease-in-out;
             position: fixed;
             left: 0;
             top: 0;
-            width: 310px;
             z-index: 2;
+            width: 320px;
         }
 
-        #select-location,
-        #filterbar {
-            margin: 10px;
-            width: 100%;
+        #toolbar h1{
+            font-size: 26px;
+        }
+
+        #category-container, #rating-container{
             padding: 10px;
             border-radius: 10px;
             background-color: #fed7aa;
@@ -159,7 +159,6 @@
             border-radius: 5px;
         }
 
-        #apply-filters,
         #clear-filters {
             margin-top: 20px;
             padding: 8px;
@@ -178,7 +177,7 @@
             z-index: 1;
         }
 
-        #category-container {
+        #categories {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 5px;
@@ -217,10 +216,24 @@
             font-size: 28px;
         }
 
-        .rating-container {
+        #rating-container {
             display: flex;
-            flex-direction: column;
-            margin-top: 20px;
+            margin-top: 15px;
+        }
+
+        .rating-btn {
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 5px;
+        }
+
+        .rating-btn.selected {
+            background-color: #fb923c;
+            color: white;
         }
 
         .rating-img {
@@ -229,54 +242,17 @@
             margin-bottom: -45px;
             margin-top: -45px;
         }
-
-        .rating-slider {
-            width: 200px;
-            appearance: none;
-            height: 5px;
-            background: white;
-            border-radius: 5px;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        .rating-slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #fb923c;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .rating-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #fb923c;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .rating-value {
-            margin-top: 5px;
-            font-size: 16px;
-        }
     </style>
 </head>
 
 <body>
     <div id="toolbar">
         <button id="filter-close-btn">×</button>
-        <!--Location selection: to be implemented later-->
-        <div id="select-location" style="display: none;">
-            <div>Choose a location to explore nearby restaurants:</div>
-            <button id="selectLocationBtn">Select Location</button>
-            <div id="location-info">Click the button to start selecting</div>
-        </div>
         <div id="filterbar">
-            <div>
+            <h1>Explore food in Boston!</h1>
+            <div id="category-container">
                 <div style="margin-top: 5px;">Choose one or more categories:</div>
-                <div id="category-container">
+                <div id="categories">
                     <button class="category-btn" data-category="pizza"><span class="emoji">🍕</span><span
                             class="label">Pizza</span></button>
                     <button class="category-btn" data-category="sandwiches"><span class="emoji">🥪</span><span
@@ -309,18 +285,16 @@
                             class="label">Ethnic Markets</span></button>
                 </div>
             </div>
-            <div class="rating-container">
-                <div>
-                    <span>Rating higher than:</span>
-                    <span class="rating-value">3.5</span>
+            <div id="rating-container">
+                <span style="margin-top: 5px;">Pick rating:</span>
+                <div style="margin-left: 10px;">
+                    <button class="rating-btn" data-rating="3.5">3.5+</button>
+                    <button class="rating-btn" data-rating="4">4+</button>
+                    <button class="rating-btn" data-rating="4.5">4.5+</button>
+                    <button class="rating-btn" data-rating="5">5</button>
                 </div>
-                <img style="margin-left: 50px;" id="ratingImage" class="rating-img" src="stars35.png"
-                    alt="Rating Stars">
-                <input style="margin-left: 50px;" id="ratingSlider" class="rating-slider" type="range" min="0" max="3"
-                    step="1" value="0">
             </div>
-            <div style="margin-left: 90px;">
-                <button id="apply-filters">Apply Filters</button>
+            <div style="margin-left: 215px;">
                 <button id="clear-filters">Clear Filters</button>
             </div>
         </div>
@@ -367,36 +341,15 @@
             toolbar.classList.remove("collapsed");
         });
 
-        // Rating slider
-        const ratingSlider = document.getElementById("ratingSlider");
-        const ratingImage = document.getElementById("ratingImage");
-        const ratingValue = document.querySelector(".rating-value");
-
-        const ratings = [3.5, 4, 4.5, 5];
-        const images = ["stars35.png", "stars4.png", "stars45.png", "stars5.png"];
-
-        ratingSlider.addEventListener("input", function () {
-            const index = parseInt(ratingSlider.value);
-            ratingImage.src = images[index];
-            ratingValue.textContent = ratings[index];
-        });
-
-        // Location selector listener
-        document.getElementById("selectLocationBtn").addEventListener("click", () => {
-            selectMode = true;
-            document.getElementById("location-info").innerText = "Click on the map to select a location.";
-        });
+        // Initialize filters
+        let selectedRating = 3.5;
+        let selectedCategories = Array.from(document.querySelectorAll('.category-btn'))
+                .flatMap(btn => btn.dataset.category.split(" "));
 
         // Filter listeners
-        document.querySelector("#apply-filters").addEventListener("click", () => {
-            filterData();
-        });
-
         document.querySelector("#clear-filters").addEventListener("click", () => {
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove("selected"));
-            document.getElementById("ratingSlider").value = 0;
-            document.getElementById("ratingImage").src = "stars35.png";
-            document.querySelector(".rating-value").textContent = "3.5";
+            document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
 
             renderData(jsonData);
         });
@@ -404,18 +357,27 @@
         document.querySelectorAll(".category-btn").forEach(button => {
             button.addEventListener("click", () => {
                 button.classList.toggle("selected");
+                selectedCategories = Array.from(document.querySelectorAll('.category-btn.selected'))
+                .flatMap(btn => btn.dataset.category.split(" "));
+
+                filterData(selectedRating, selectedCategories);
             });
         });
 
+        document.querySelectorAll('.rating-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
+                selectedRating = parseFloat(button.dataset.rating);
+        
+                filterData(selectedRating, selectedCategories);
+            });
+        });
+
+
         // Filter data
-        function filterData() {
+        function filterData(selectedRating, selectedCategories) {
             if (!jsonData) return;
-
-            const selectedCategories = Array.from(document.querySelectorAll('.category-btn.selected'))
-                .flatMap(btn => btn.dataset.category.split(" "));
-
-            const ratingIndex = parseInt(document.getElementById("ratingSlider").value);
-            const selectedRating = ratings[ratingIndex];
 
             const filteredData = jsonData.filter(restaurant => {
                 const restaurantRating = parseFloat(restaurant.rating) || 0;
