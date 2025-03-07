@@ -18,6 +18,7 @@
             margin: 0;
             display: flex;
             font-family: 'Trebuchet MS', Arial, sans-serif;
+            color: #27272a
         }
 
         .map-container {
@@ -27,41 +28,69 @@
         }
 
         .sidebar {
-            display: none; /* Hide by default */
-            position: absolute; /* Absolute positioning */
-            top: 0;
-            right: 0;
-            width: 300px; /* Adjust width as needed */
-            height: 400px;
-            background: #f7f7f7; /* Consistent color */
-            border-left: 2px solid #ccc;
-            z-index: 2; /* Ensure it appears on top of the map */
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 330px;
+            background: #f7f7f7;
+            z-index: 2;
             padding: 20px;
-            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Optional: Add shadow */
+            padding-bottom: 30px;
+            box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+            border-radius: 10px;
+        }
+
+        #details span{
+            display: block;
+        }
+
+        #details-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #details-categories span {
+            display:inline-flex;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+            white-space: nowrap;
         }
 
         #toolbar {
             flex: 1;
             height: 100vh;
-            background: #f7f7f7;
+            background:#fff7ed;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-size: 18px;
-            color: #555;
+            font-size: 16px;
             border-right: 2px solid #ccc;
-            padding: 20px;
+            padding: 30px 25px;
+            padding-top: 25px;
             transition: width 0.3s ease-in-out;
             position: fixed;
             left: 0;
             top: 0;
-            width: 280px;
+            width: 310px;
             z-index: 2;
-            padding-top: 70px;
+        }
+
+        #select-location, #filterbar{
+            margin: 10px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #fed7aa;
         }
 
         #toolbar.collapsed {
-            width: 30px;
+            width: 25px;
             padding: 20px 10px;
             align-items: center;
             overflow: hidden;
@@ -72,9 +101,9 @@
             display: none;
         }
 
-        #close-btn {
+        #filter-close-btn {
             position: absolute;
-            top: 100px;
+            top: 0px;
             right: 10px;
             cursor: pointer;
             background: none;
@@ -82,22 +111,36 @@
             font-size: 30px;
         }
 
+        #close-sidebar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        #filter-close-btn:hover, #close-sidebar:hover {
+            color: #ef4444
+        }
+
         #toggle-btn {
             display: none;
             cursor: pointer;
             border: none;
             background: none;
-            font-size: 22px;
+            font-size: 26px;
             position: absolute;
-            top: 100px; 
-            left: 10px;
+            top: 0px;
+            left: 5px;
         }
 
         #toolbar.collapsed #toggle-btn {
             display: block;
         }
 
-        #toolbar.collapsed #close-btn {
+        #toolbar.collapsed #filter-close-btn {
             display: none;
         }
 
@@ -107,15 +150,21 @@
         }
 
         button {
-            padding: 10px 10px;
+            padding: 6px;
             font-size: 16px;
             cursor: pointer;
-            margin-bottom: 10px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #apply-filters, #clear-filters{
+            margin-top: 20px;
+            padding: 8px;
         }
 
         #location-info {
             font-size: 14px;
-            color: #333;
             margin-top: 10px;
         }
 
@@ -131,7 +180,7 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 5px;
-            margin-top: 20px;
+            margin-top: 10px;
             text-align: center;
         }
 
@@ -140,26 +189,25 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: none;
-            background: #f7f7f7;
+            background: white;
             font-size: 12px;
             padding: 5px;
             cursor: pointer;
             border-radius: 5px;
             width: 70px;
             height: 70px;
-            border: 1px solid #ccc;
+            border: 0.8px solid #ccc;
             text-align: center;
             word-wrap: break-word;
             white-space: pre-line;
-        }   
+        }
 
         .category-btn:hover {
             background: #ddd;
         }
 
         .category-btn.selected {
-            background: #4CAF50;
+            background:#fb923c;
             color: white;
         }
 
@@ -170,22 +218,21 @@
         .rating-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            margin-top: 10px;
+            margin-top: 20px;
         }
 
         .rating-img {
-            width: 120px;
+            width: 200px;
             height: auto;
-            margin-bottom: -25px;
-            margin-top: -25px;
+            margin-bottom: -45px;
+            margin-top: -45px;
         }
 
         .rating-slider {
             width: 200px;
             appearance: none;
             height: 5px;
-            background: #ddd;
+            background: white;
             border-radius: 5px;
             outline: none;
             transition: 0.2s;
@@ -195,7 +242,7 @@
             appearance: none;
             width: 20px;
             height: 20px;
-            background: #4CAF50;
+            background: #fb923c;
             border-radius: 50%;
             cursor: pointer;
         }
@@ -203,7 +250,7 @@
         .rating-slider::-moz-range-thumb {
             width: 20px;
             height: 20px;
-            background: orange;
+            background: #fb923c;
             border-radius: 50%;
             cursor: pointer;
         }
@@ -217,15 +264,16 @@
 
 <body>
     <div id="toolbar">
-        <button id="close-btn">×</button>
-        <div id="select-location">
+        <button id="filter-close-btn">×</button>
+        <!--Location selection: to be implemented later-->
+        <div id="select-location" style="display: none;">
             <div>Choose a location to explore nearby restaurants:</div>
             <button id="selectLocationBtn">Select Location</button>
             <div id="location-info">Click the button to start selecting</div>
         </div>
         <div id="filterbar">
             <div>
-                <div>Select one or more categories:</div>
+                <div style="margin-top: 5px;">Choose one or more categories:</div>
                 <div id="category-container">
                     <button class="category-btn" data-category="pizza"><span class="emoji">🍕</span><span class="label">Pizza</span></button>
                     <button class="category-btn" data-category="sandwiches"><span class="emoji">🥪</span><span class="label">Sandwiches</span></button>
@@ -245,13 +293,17 @@
                 </div>
             </div>
             <div class="rating-container">
-                <div>Rating higher than:</div>
-                <img id="ratingImage" class="rating-img" src="stars35.png" alt="Rating Stars">
-                <input id="ratingSlider" class="rating-slider" type="range" min="0" max="3" step="1" value="0">
-                <div class="rating-value">3.5</div>
+                <div>
+                    <span>Rating higher than:</span>
+                    <span class="rating-value">3.5</span>
+                </div>
+                <img style="margin-left: 50px;" id="ratingImage" class="rating-img" src="stars35.png" alt="Rating Stars">
+                <input style="margin-left: 50px;" id="ratingSlider" class="rating-slider" type="range" min="0" max="3" step="1" value="0">
             </div>
-            <button id="apply-filters">Apply Filters</button>
-            <button id="clear-filters">Clear Filters</button>
+            <div style="margin-left: 90px;">
+                <button id="apply-filters">Apply Filters</button>
+                <button id="clear-filters">Clear Filters</button>
+            </div>
         </div>
         <button id="toggle-btn">☰</button>
     </div>
@@ -260,20 +312,36 @@
         <div id="mapCanvas"></div>
     </div>
 
-    <div class="sidebar">
-        <svg id="details"></svg>
+    <div class="sidebar" style="font-size: 14px;">
+        <button id="close-sidebar">×</button>
+        <div id="details">
+            <span id="details-name" style="display: block; font-size: 22px; font-weight: 800; color: #f97316; margin-top: 10px; margin-bottom: 10px;">
+            </span>
+            <span id="details-location"></span>
+            <span id="details-categories">
+            </span>
+            <div style="text-align: center;">
+                <img id="details-rating" class="rating-img" src="stars35.png" alt="Rating Stars">
+            </div>
+            <span id="details-link">
+                See details:
+                <a id="yelp-link" target="_blank" style="margin-left: 2px; margin-bottom: -10px;">
+                    <img id="yelp-image" src="yelp.png" alt="Yelp logo" style="width: 30px; height: 30px; margin-bottom: -8px;">
+                </a>
+            </span>
+        </div>
     </div>
 
     <script>
         // Toolbar toggle
         const toolbar = document.getElementById("toolbar");
-        const closeBtn = document.getElementById("close-btn");
+        const closeBtn = document.getElementById("filter-close-btn");
         const toggleBtn = document.getElementById("toggle-btn");
-    
+
         closeBtn.addEventListener("click", () => {
             toolbar.classList.add("collapsed");
         });
-    
+
         toggleBtn.addEventListener("click", () => {
             toolbar.classList.remove("collapsed");
         });
@@ -291,6 +359,12 @@
             ratingImage.src = images[index];
             ratingValue.textContent = ratings[index];
         });
+        
+        // Location selector listener
+        document.getElementById("selectLocationBtn").addEventListener("click", () => {
+            selectMode = true;
+            document.getElementById("location-info").innerText = "Click on the map to select a location.";
+        });
 
         // Filter listeners
         document.querySelector("#apply-filters").addEventListener("click", () => {
@@ -306,10 +380,9 @@
             renderData(jsonData);
         });
 
-
         document.querySelectorAll(".category-btn").forEach(button => {
             button.addEventListener("click", () => {
-            button.classList.toggle("selected");
+                button.classList.toggle("selected");
             });
         });
 
@@ -335,14 +408,12 @@
                 return matchesCategory && matchesRating;
             });
 
-            console.log(filteredData)
+            console.log(filteredData);
 
             renderData(filteredData);
         }
 
-
         // Map framework
-
         mapboxgl.accessToken = 'pk.eyJ1Ijoia3g2NCIsImEiOiJjbGkzd2E1dmsxMzNoM2twY2p2azF0bGVlIn0.t_v73kaAMUtoGBPESpw3uA';
 
         const map = new mapboxgl.Map({
@@ -352,84 +423,9 @@
             zoom: 12
         });
 
-        map.addControl(new mapboxgl.NavigationControl());
-
-        const geocoder = new MapboxGeocoder({
-            accessToken: mapboxgl.accessToken,
-            mapboxgl: mapboxgl
-        });
-
         let jsonData = null;
         let selectMode = false;
         let marker = null;
-
-        document.getElementById("selectLocationBtn").addEventListener("click", () => {
-            selectMode = true;
-            document.getElementById("location-info").innerText = "Click on the map to select a location.";
-        });
-
-        //details for the dots
-        const details = d3.select("#details")
-            .attr("width", "100%")
-            .attr("height", "150");
-
-        const rect = details.append("rect")
-
-        const nameText = details.append("text")
-            .attr("x", 25)
-            .attr("y", 50)
-            .style("font-size", "25px")
-            .style("font-weight", "bold");
-
-        const categoryRect = details.append("rect")
-            .attr("x", 25)
-            .attr("y", 95)
-
-        const categoryText = details.append("text")
-            .attr("x", 40)
-            .attr("y", 115)
-            .style("font-size", "14px");
-
-        const ratingGroup = details.append("g")
-            .attr("transform", "translate(25, 80)");
-
-        const yelpLink = details.append("a")
-            .attr("target", "_blank");
-
-        const snippetRect = details.append("rect")
-            .attr("x", 40)
-            .attr("y", 145)
-
-        const snippetGroup = details.append("g")
-            .attr("transform", "translate(60, 170)")
-            .style("font-size", "15px")
-            .style("fill", "#555");
-
-
-        function wrapText(text, maxCharsPerLine) {
-            if (!text) return []; // Handle null or empty text
-
-            const words = text.split(' ');
-            const lines = [];
-            let currentLine = '';
-
-            words.forEach(word => {
-                if ((currentLine + ' ' + word).trim().length > maxCharsPerLine) {
-                    if (currentLine.trim().length > 0) {
-                        lines.push(currentLine.trim());
-                    }
-                    currentLine = word;
-                } else {
-                    currentLine = currentLine.length === 0 ? word : currentLine + ' ' + word;
-                }
-            });
-
-            if (currentLine.trim().length > 0) {
-                lines.push(currentLine.trim());
-            }
-
-            return lines;
-        }
 
         map.on("click", (e) => {
             if (!selectMode) return;
@@ -463,14 +459,13 @@
             }
         }
 
-        // visualize data on the map start here
+        // Render data on the map
         function renderData(data) {
             if (map.getSource('locations')) {
                 map.removeLayer('dots');
                 map.removeSource('locations');
             }
 
-            // Add each point manually from JSON
             map.addSource('locations', {
                 type: 'geojson',
                 data: {
@@ -488,234 +483,118 @@
                             category2: location.category2,
                             category3: location.category3,
                             category4: location.category4,
-                            comment: location.snippet_text,
+                            // comment: location.snippet_text,
                             rating: location.rating,
                             link: location.url,
-                            location: location.location_json
+                            address: location.display_address
                         }
                     }))
                 }
             });
 
-            // Add layer for colored dots
             map.addLayer({
-    id: 'dots',
-    type: 'circle',
-    source: 'locations',
-    paint: {
-        'circle-radius': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            10,
-            6
-        ],
-        'circle-opacity': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            1,
-            0.8
-        ],
-        'circle-color': '#FFA500' // Use orange for all points
-    }
-});
-
+                id: 'dots',
+                type: 'circle',
+                source: 'locations',
+                paint: {
+                    'circle-radius': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        10,
+                        6
+                    ],
+                    'circle-opacity': 0.8,
+                    'circle-color': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        '#ea580c',
+                        '#fdba74'
+                    ],
+                    'circle-stroke-width': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        3, 
+                        0
+                    ],
+                    'circle-stroke-color': '#d1d5db'
+                }
+            });
 
             let lastHoveredFeatureId = null;
 
             map.on('mouseenter', 'dots', (e) => {
-
-                yelpLink.selectAll("*").remove();
-                snippetGroup.selectAll("*").remove();
-                details.selectAll("image").remove();
-                ratingGroup.selectAll("*").remove();
-                details.attr("height", 0);
-                rect.attr("height", 0);
-                map.getCanvas().style.cursor = 'pointer';
-                const properties = e.features[0].properties;
-                const coordinates = e.features[0].geometry.coordinates;
                 const featureId = e.features[0].id;
 
-                lastHoveredFeatureId = featureId;
-
-                map.setFeatureState(
-                    { source: 'locations', id: featureId },
-                    { hover: true }
-                );
-
-                nameText.text(properties.name);
-                categoryText.text(properties.category1)
-                    .attr("fill", "black");
-                const categoryTextBBox = categoryText.node().getBBox();
-                const shadowFilter = details.append("defs")
-                    .append("filter")
-                    .attr("id", "shadow")
-                    .attr("x", "-50%")
-                    .attr("y", "-50%")
-                    .attr("width", "200%")
-                    .attr("height", "200%");
-
-                shadowFilter.append("feDropShadow")
-                    .attr("dx", 2)
-                    .attr("dy", 2)
-                    .attr("stdDeviation", 3)
-                    .attr("flood-color", "rgba(0, 0, 0, 0.3)")
-
-                categoryRect.attr("width", categoryTextBBox.width + 30)
-                    .attr("height", 30)
-                    .attr("rx", 10)
-                    .attr("ry", 10)
-                    .attr("fill", "white")
-                    .attr("filter", "url(#shadow)");
-
-                const wrappedLines = wrapText(properties.comment, 50);
-
-                wrappedLines.forEach((line, i) => {
-                    snippetGroup.append("text")
-                        .attr("x", 0)
-                        .attr("y", i * 20)
-                        .text(line);
-                });
-
-                const link = properties.link;
-
-
-                const detailsHeight = Math.max(150, 170 + wrappedLines.length * 25);
-                details.attr("height", detailsHeight);
-                rect.attr("height", detailsHeight)
-                    .attr("width", "100%")
-                    .attr("fill", categoryColors[properties.category1] || '#aaaaaa')
-                    .attr("opacity", 0.6);
-
-                snippetRect.attr("height", wrappedLines.length * 25)
-                    .attr("width", 400)
-                    .attr("fill", "white")
-                    .attr("rx", 10)
-                    .attr("ry", 10)
-                    .attr("opacity", 0.6)
-                    .attr("filter", "url(#shadow)");
-
-
-                const shadow = details.append("defs")
-                    .append("filter")
-                    .attr("id", "shadow2")
-                    .attr("x", "-100%")
-                    .attr("y", "-100%")
-                    .attr("width", "300%")
-                    .attr("height", "300%")
-                    .attr("filterUnits", "userSpaceOnUse");
-
-                shadow.append("feDropShadow")
-                    .attr("dx", -1)
-                    .attr("dy", 2)
-                    .attr("stdDeviation", 3)
-                    .attr("flood-color", "rgba(0, 0, 0, 0.3)")
-                    .attr("flood-opacity", 0.3);
-
-                categoryRect.attr("width", categoryTextBBox.width + 30)
-                    .attr("height", 30)
-                    .attr("rx", 10)
-                    .attr("ry", 10)
-                    .attr("fill", "white")
-                    .attr("filter", "url(#shadow)");
-
-                details.append("image")
-                    .attr("xlink:href", "chat.png")
-                    .attr("width", 20)
-                    .attr("height", 20)
-                    .attr("class", "chatImg")
-                    .attr("x", 20.3)
-                    .attr("y", 160)
-                    .attr("filter", "url(#shadow2)")
-                    .attr("opacity", 0.6);
-
-
-                const rating = parseInt(properties.rating, 10);
-                const maxStars = 5;
-
-                for (let i = 0; i < maxStars; i++) {
-                    ratingGroup.append("text")
-                        .attr("x", 30 * i)
-                        .attr("y", 0)
-                        .attr("font-size", "22px")
-                        .text(i < rating ? "\u2B50" : "\u2606")
-                        .style("opacity", i < rating ? 1 : 0.5);
-                }
-
-                // const link=properties.link;
-
-                yelpLink.attr("href", link)
-                    .append("image")
-                    .attr("x", 400)
-                    .attr("y", 70)
-                    .attr("width", 40)
-                    .attr("height", 40)
-                    .attr("class", "yelpImage")
-                    .attr("xlink:href", "yelp.png")
-                    .attr("filter", "url(#shadow)")
-                    .on("mouseenter", function () {
-
-                        var img = d3.select(this);
-                        var originalWidth = 40;
-                        var originalHeight = 40;
-                        var scaleFactor = 1.25;
-                        var newWidth = originalWidth * scaleFactor;
-                        var newHeight = originalHeight * scaleFactor;
-                        var offsetX = (newWidth - originalWidth) / 2;
-                        var offsetY = (newHeight - originalHeight) / 2;
-
-                        img.transition()
-                            .duration(300)
-                            .attr("width", newWidth)
-                            .attr("height", newHeight)
-                            .attr("x", 400 - offsetX)
-                            .attr("y", 70 - offsetY);
-                    })
-                    .on("mouseleave", function () {
-
-                        var img = d3.select(this);
-                        var originalWidth = 40;
-                        var originalHeight = 40;
-
-                        img.transition()
-                            .duration(300)
-                            .attr("width", originalWidth)
-                            .attr("height", originalHeight)
-                            .attr("x", 400)
-                            .attr("y", 70);
-                    });
-
-                //problem: location
-                const loc = properties.location;
-                console.log(loc);
-
-                console.log(loc.display_address);
-
-                // Append the displayLocation as text
-                details.append("text")
-                    .attr("class", "displaylocation")  // Correct way to set the class
-                    .attr("x", 200)
-                    .attr("y", 70)
-                    .text(displayLocation)
-                    .attr("fill", "black");
-            });
-
-            map.on('mouseleave', 'dots', () => {
-                map.getCanvas().style.cursor = '';
-
+                // Reset the previous hovered feature
                 if (lastHoveredFeatureId !== null) {
                     map.setFeatureState(
                         { source: 'locations', id: lastHoveredFeatureId },
                         { hover: false }
                     );
-                    lastHoveredFeatureId = null;
                 }
 
-            });
-        };
+                // Set the new hovered feature
+                map.setFeatureState(
+                    { source: 'locations', id: featureId },
+                    { hover: true }
+                );
+
+                lastHoveredFeatureId = featureId;
+
+                // Update the sidebar
+                const properties = e.features[0].properties;
+                const sidebar = document.querySelector(".sidebar");
+                sidebar.style.display = 'block';
+
+                document.getElementById("details-name").textContent = properties.name;
+                document.getElementById("details-location").textContent = `📍 ${properties.address}`;
+                const rating = parseFloat(properties.rating);
+                const ratingMap = {
+                    3.5: "stars35.png",
+                    4.0: "stars4.png",
+                    4.5: "stars45.png",
+                    5.0: "stars5.png"
+                };
+                document.getElementById("details-rating").src = ratingMap[rating] || "stars35.png";
+
+                const categoryContainer = document.getElementById("details-categories");
+                categoryContainer.innerHTML = "";
+
+                const categories = [properties.category1, properties.category2, properties.category3, properties.category4]
+                    .filter(cat => cat);
+
+                categories.forEach(cat => {
+                    const span = document.createElement("span");
+                    span.textContent = cat;
+                    span.style.padding = "5px";
+                    span.style.border = "1px solid #ccc";
+                    span.style.borderRadius = "5px";
+                    span.style.boxShadow = "0 1px 2px rgb(0 0 0 / 0.2)";
+                    span.style.marginRight = "10px";
+                    span.style.backgroundColor = "#fed7aa"
+                    categoryContainer.appendChild(span);
+                });
+
+                // document.getElementById("details-snippet").textContent = properties.comment ? `${properties.comment} 👉` : "";
+
+                const yelpLink = document.getElementById("yelp-link");
+                    yelpLink.href = properties.link;
+                });
+
+                document.getElementById("close-sidebar").addEventListener("click", () => {
+                    document.querySelector(".sidebar").style.display = "none";
+                    if (lastHoveredFeatureId !== null) {
+                        map.setFeatureState(
+                            { source: 'locations', id: lastHoveredFeatureId },
+                            { hover: false }
+                    );
+                    lastHoveredFeatureId = null;
+            }
+        });
+        }
 
         map.on('load', loadJSON);
     </script>
-
 </body>
 
 </html>
