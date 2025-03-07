@@ -335,6 +335,9 @@
                         .text(line);
                 });
 
+                const link = properties.link;
+
+
                 const detailsHeight = Math.max(150, 170 + wrappedLines.length * 25);
                 details.attr("height", detailsHeight);
                 rect.attr("height", detailsHeight)
@@ -378,6 +381,7 @@
                     .attr("xlink:href", "chat.png")
                     .attr("width", 20)
                     .attr("height", 20)
+                    .attr("class", "chatImg")
                     .attr("x", 20.3)
                     .attr("y", 160)
                     .attr("filter", "url(#shadow2)")
@@ -396,11 +400,15 @@
                         .style("opacity", i < rating ? 1 : 0.5);
                 }
 
-                yelpLink.append("image")
+                // const link=properties.link;
+
+                yelpLink.attr("href", link)
+                    .append("image")
                     .attr("x", 400)
                     .attr("y", 70)
                     .attr("width", 40)
                     .attr("height", 40)
+                    .attr("class", "yelpImage")
                     .attr("xlink:href", "yelp.png")
                     .attr("filter", "url(#shadow)")
                     .on("mouseenter", function () {
@@ -435,7 +443,7 @@
                             .attr("y", 70);
                     });
 
-
+                //problem: location
                 const loc = properties.location;
                 console.log(loc);
 
