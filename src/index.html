@@ -27,15 +27,17 @@
         }
 
         .sidebar {
-            flex: 1;
-            height: 300px;
-            background: #f7f7f7;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 18px;
-            color: #555;
+            display: none; /* Hide by default */
+            position: absolute; /* Absolute positioning */
+            top: 0;
+            right: 0;
+            width: 300px; /* Adjust width as needed */
+            height: 400px;
+            background: #f7f7f7; /* Consistent color */
             border-left: 2px solid #ccc;
+            z-index: 2; /* Ensure it appears on top of the map */
+            padding: 20px;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Optional: Add shadow */
         }
 
         #toolbar {
@@ -346,7 +348,7 @@
         const map = new mapboxgl.Map({
             container: 'mapCanvas',
             style: 'mapbox://styles/mapbox/light-v11',
-            center: [-71.0589, 42.3601],
+            center: [-71.09, 42.35],
             zoom: 12
         });
 
@@ -357,10 +359,7 @@
             mapboxgl: mapboxgl
         });
 
-        map.addControl(geocoder, 'top-left');
-
         let jsonData = null;
-        let categoryColors = {};
         let selectMode = false;
         let marker = null;
 
@@ -452,31 +451,16 @@
             selectMode = false;
         });
 
-        // Load JSON
+        // Load JSON and render data
         async function loadJSON() {
             try {
                 const response = await fetch('yelp_boston_cleaned.json');
                 const data = await response.json();
-                jsonData = data; // Store the JSON data
-                console.log(jsonData)
-
-                assignColors(jsonData);
+                jsonData = data;
                 renderData(jsonData);
-
             } catch (error) {
                 console.error("Error loading local JSON:", error);
             }
-        }
-
-        // Assign unique colors to categories dynamically
-        function assignColors(data) {
-            const uniqueCategories = [...new Set(data.map(f => f.category1 || "Other"))];
-            const colorScale = d3.scaleOrdinal(d3.schemeSet3);
-
-            categoryColors = uniqueCategories.reduce((acc, category) => {
-                acc[category] = colorScale(category);
-                return acc;
-            }, {});
         }
 
         // visualize data on the map start here
@@ -500,7 +484,10 @@
                         },
                         properties: {
                             name: location.name,
-                            category1: location.category1 || "Other",
+                            category1: location.category1,
+                            category2: location.category2,
+                            category3: location.category3,
+                            category4: location.category4,
                             comment: location.snippet_text,
                             rating: location.rating,
                             link: location.url,
@@ -512,30 +499,25 @@
 
             // Add layer for colored dots
             map.addLayer({
-                id: 'dots',
-                type: 'circle',
-                source: 'locations',
-                paint: {
-                    'circle-radius': [
-                        'case',
-                        ['boolean', ['feature-state', 'hover'], false],
-                        10,
-                        5
-                    ],
-                    'circle-opacity': [
-                        'case',
-                        ['boolean', ['feature-state', 'hover'], false],
-                        1,
-                        0.8
-                    ],
-                    'circle-color': [
-                        'match',
-                        ['get', 'category1'],
-                        ...Object.entries(categoryColors).flat(),
-                        '#aaaaaa' // Default color if no match
-                    ]
-                }
-            });
+    id: 'dots',
+    type: 'circle',
+    source: 'locations',
+    paint: {
+        'circle-radius': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            10,
+            6
+        ],
+        'circle-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            1,
+            0.8
+        ],
+        'circle-color': '#FFA500' // Use orange for all points
+    }
+});
 
 
             let lastHoveredFeatureId = null;
