@@ -315,7 +315,7 @@
                 </div>
             </div>
             <div id="review-container">
-                <span style="margin-top: 5px;">Popularity level:</span>
+                <span style="margin-top: 5px;">Select popularity level:</span>
                 <div style="margin-top: 10px;">
                     <button class="review-btn" data-review="least">Least</button>
                     <button class="review-btn" data-review="less">Less</button>
@@ -374,12 +374,13 @@
         let selectedRating = 3.5;
         let selectedCategories = Array.from(document.querySelectorAll('.category-btn'))
             .flatMap(btn => btn.dataset.category.split(" "));
+        let selectedReview = null;
 
         // Filter listeners
         document.querySelector("#clear-filters").addEventListener("click", () => {
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove("selected"));
             document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
-
+            document.querySelectorAll('.review-btn').forEach(btn => btn.classList.remove('selected'));
             renderData(jsonData);
         });
 
@@ -395,9 +396,16 @@
 
         document.querySelectorAll('.rating-btn').forEach(button => {
             button.addEventListener('click', () => {
+
+                const isAlreadySelected = button.classList.contains('selected');
                 document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
-                button.classList.add('selected');
-                selectedRating = parseFloat(button.dataset.rating);
+                
+                if (isAlreadySelected) {
+                    selectedRating = 3.5;
+                } else {
+                    button.classList.add('selected');
+                    selectedRating = parseFloat(button.dataset.rating);
+                }
 
                 filterData(selectedRating, selectedCategories, selectedReview);
             });
@@ -405,12 +413,18 @@
 
         document.querySelectorAll('.review-btn').forEach(button => {
             button.addEventListener('click', () => {
+                const isAlreadySelected = button.classList.contains('selected');
                 document.querySelectorAll('.review-btn').forEach(btn => btn.classList.remove('selected'));
-                button.classList.add('selected');
-                selectedReview = parseInt(button.dataset.review);
+
+                if (isAlreadySelected) {
+                    selectedReview = null;
+                } else {
+                    button.classList.add('selected');
+                    selectedReview = button.dataset.review;
+                }
 
                 filterData(selectedRating, selectedCategories, selectedReview);
-            });
+                });
         });
 
         var review_range;
@@ -432,11 +446,11 @@
                 review_range = [review_count_quantiles[0], review_count_quantiles[1]];
             } else if (selectedReview === "more") {
                 review_range = [review_count_quantiles[1], review_count_quantiles[2]];
-            } else {
+            } else if (selectedReview === "most"){
                 review_range = [review_count_quantiles[2], Infinity];
+            } else{ // null
+                review_range = [0, Infinity]
             }
-
-            console.log(review_range)
 
             const filteredData = jsonData.filter(restaurant => {
                 const restaurantRating = parseFloat(restaurant.rating) || 0;
