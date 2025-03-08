@@ -382,6 +382,11 @@
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove("selected"));
             document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
             document.querySelectorAll('.review-btn').forEach(btn => btn.classList.remove('selected'));
+            selectedRating = 3.5;
+            selectedCategories = Array.from(document.querySelectorAll('.category-btn'))
+                .flatMap(btn => btn.dataset.category.split(" "));
+            selectedReview = null;
+
             renderData(jsonData);
         });
 
