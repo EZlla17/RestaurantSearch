@@ -393,6 +393,7 @@
             selectedCategories = Array.from(document.querySelectorAll('.category-btn'))
                 .flatMap(btn => btn.dataset.category.split(" "));
             selectedReview = null;
+            document.querySelector(".sidebar").style.display = 'none';
 
             renderData(jsonData);
         });
@@ -441,10 +442,14 @@
         });
 
         var review_range;
+        let lastHoveredFeatureId = null;
+        let currentHoveredFeatureId = null;
 
         // Filter data
         function filterData(selectedRating, selectedCategories, selectedReview) {
             if (!jsonData) return;
+
+            document.querySelector(".sidebar").style.display = 'none';
 
             const reviewCounts = jsonData.map(d => d.review_count).sort((a, b) => a - b);
             const review_count_quantiles = [
@@ -501,6 +506,14 @@
                         }
                     }))
                 });
+            }
+
+            if (lastHoveredFeatureId !== null) {
+                map.setFeatureState(
+                    { source: 'locations', id: lastHoveredFeatureId },
+                    { hover: false }
+                );
+                lastHoveredFeatureId = null;
             }
         }
 
@@ -677,9 +690,8 @@
                 }
             });
 
-
-            let lastHoveredFeatureId = null;
-            let currentHoveredFeatureId = null;
+            lastHoveredFeatureId = null;
+            currentHoveredFeatureId = null;
 
             // Make sure the hovered feature is always on top
             function moveFeatureToEnd(featureId) {
