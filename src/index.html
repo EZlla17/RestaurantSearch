@@ -570,7 +570,7 @@
                     'circle-radius': [
                         'case',
                         ['boolean', ['feature-state', 'hover'], false],
-                        12,
+                        10,
                         6
                     ],
                     'circle-opacity': [
@@ -596,12 +596,10 @@
             });
 
 
-
-
-
             let lastHoveredFeatureId = null;
+            let currentHoveredFeatureId = null;
 
-            // make sure the hovered is always on top
+            // Make sure the hovered feature is always on top
             function moveFeatureToEnd(featureId) {
                 const source = map.getSource('locations');
                 if (!source) return;
@@ -615,31 +613,14 @@
                 source.setData(data);
             }
 
-            map.on('mouseenter', 'dots', (e) => {
-
-                map.getCanvas().style.cursor = 'pointer';
-                const featureId = e.features[0].id;
-
-                if (lastHoveredFeatureId !== null) {
-                    map.setFeatureState(
-                        { source: 'locations', id: lastHoveredFeatureId },
-                        { hover: false }
-                    );
-                }
-                map.setFeatureState(
-                    { source: 'locations', id: featureId },
-                    { hover: true }
-                );
-
-                lastHoveredFeatureId = featureId;
-
-                // Update the sidebar
-                const properties = e.features[0].properties;
+            // Function to update sidebar details
+            function updateSidebar(properties) {
                 const sidebar = document.querySelector(".sidebar");
                 sidebar.style.display = 'block';
 
                 document.getElementById("details-name").textContent = properties.name;
                 document.getElementById("details-location").textContent = `📍 ${properties.address}`;
+
                 const rating = parseFloat(properties.rating);
                 const ratingMap = {
                     3.5: "stars35.png",
@@ -653,7 +634,7 @@
                 categoryContainer.innerHTML = "";
 
                 const categories = [properties.category1, properties.category2, properties.category3, properties.category4]
-                    .filter(cat => cat);
+                .filter(cat => cat);
 
                 categories.forEach(cat => {
                     const span = document.createElement("span");
@@ -663,53 +644,69 @@
                     span.style.borderRadius = "5px";
                     span.style.boxShadow = "0 1px 2px rgb(0 0 0 / 0.2)";
                     span.style.marginRight = "10px";
-                    span.style.backgroundColor = "#fed7aa"
+                    span.style.backgroundColor = "#fed7aa";
                     categoryContainer.appendChild(span);
                 });
 
-                // document.getElementById("details-snippet").textContent = properties.comment ? `${properties.comment} 👉` : "";
-
                 const yelpLink = document.getElementById("yelp-link");
                 yelpLink.href = properties.link;
+            }
+
+            // When a new point is hovered
+            map.on('mouseenter', 'dots', (e) => {
+                map.getCanvas().style.cursor = 'pointer';
+                const featureId = e.features[0].id;
+
+                if (lastHoveredFeatureId !== featureId) {
+                    if (lastHoveredFeatureId !== null) {
+                        map.setFeatureState(
+                            { source: 'locations', id: lastHoveredFeatureId },
+                            { hover: false }
+                        );
+                    }
+                    map.setFeatureState(
+                        { source: 'locations', id: featureId },
+                        { hover: true }
+                    );
+
+                    moveFeatureToEnd(featureId);
+
+                    lastHoveredFeatureId = featureId;
+                    updateSidebar(e.features[0].properties);
+                }
             });
 
             map.on('mousemove', 'dots', (e) => {
                 if (e.features.length > 0) {
                     const featureId = e.features[0].id;
 
-                    if (lastHoveredFeatureId !== featureId) {
-                        if (lastHoveredFeatureId !== null) {
+                    if (currentHoveredFeatureId !== featureId) {
+                        if (lastHoveredFeatureId !== featureId) {
                             map.setFeatureState(
                                 { source: 'locations', id: lastHoveredFeatureId },
                                 { hover: false }
                             );
-                        }
-                        map.setFeatureState(
-                            { source: 'locations', id: featureId },
+                            map.setFeatureState(
+                                { source: 'locations', id: featureId },
                             { hover: true }
-                        );
-
+                            );
                         moveFeatureToEnd(featureId);
 
                         lastHoveredFeatureId = featureId;
                     }
+                    updateSidebar(e.features[0].properties);
+                }
+
+                currentHoveredFeatureId = featureId;
                 }
             });
-
 
             map.on('mouseleave', 'dots', () => {
                 map.getCanvas().style.cursor = '';
-                if (lastHoveredFeatureId !== null) {
-                    map.setFeatureState(
-                        { source: 'locations', id: lastHoveredFeatureId },
-                        { hover: false }
-                    );
-                }
-                lastHoveredFeatureId = null;
+
+                currentHoveredFeatureId = null;
             });
-
-      
-
+    
             document.getElementById("close-sidebar").addEventListener("click", () => {
                 document.querySelector(".sidebar").style.display = "none";
                 if (lastHoveredFeatureId !== null) {
