@@ -661,7 +661,12 @@
                         3,
                         0.5
                     ],
-                    'circle-stroke-color': '#ffffff'
+                    'circle-stroke-color': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        '#f5f5f5',
+                        '#ffffff'
+                    ],
                 }
             });
 
