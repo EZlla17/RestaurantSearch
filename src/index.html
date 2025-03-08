@@ -316,11 +316,11 @@
             </div>
             <div id="review-container">
                 <span style="margin-top: 5px;">Select restaurant's popularity level:</span>
+                <span style="margin-top: 5px; font-size: 12px;">(based on number of reviews):</span>
                 <div style="margin-top: 10px;">
-                    <button class="review-btn" data-review="least">Least </button>
-                    <button class="review-btn" data-review="less">Less </button>
-                    <button class="review-btn" data-review="more">More</button>
-                    <button class="review-btn" data-review="most">Most</button>
+                    <button class="review-btn" data-review="less">Less Popular </button>
+                    <button class="review-btn" data-review="normal">Normal </button>
+                    <button class="review-btn" data-review="more">More Popular</button>
                 </div>
             </div>
             <div style="margin-left: 215px;">
@@ -405,7 +405,7 @@
 
                 const isAlreadySelected = button.classList.contains('selected');
                 document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
-                
+
                 if (isAlreadySelected) {
                     selectedRating = 3.5;
                 } else {
@@ -430,7 +430,7 @@
                 }
 
                 filterData(selectedRating, selectedCategories, selectedReview);
-                });
+            });
         });
 
         var review_range;
@@ -441,22 +441,21 @@
 
             const reviewCounts = jsonData.map(d => d.review_count).sort((a, b) => a - b);
             const review_count_quantiles = [
-                d3.quantile(reviewCounts, 0.25),
-                d3.quantile(reviewCounts, 0.5),
-                d3.quantile(reviewCounts, 0.75)
+                d3.quantile(reviewCounts, 0.33),
+                d3.quantile(reviewCounts, 0.66),
             ];
 
-            if (selectedReview === "least") {
+            let review_range;
+            if (selectedReview === "less") {
                 review_range = [0, review_count_quantiles[0]];
-            } else if (selectedReview === "less") {
+            } else if (selectedReview === "normal") {
                 review_range = [review_count_quantiles[0], review_count_quantiles[1]];
             } else if (selectedReview === "more") {
-                review_range = [review_count_quantiles[1], review_count_quantiles[2]];
-            } else if (selectedReview === "most"){
-                review_range = [review_count_quantiles[2], Infinity];
-            } else{ // null
-                review_range = [0, Infinity]
+                review_range = [review_count_quantiles[1], Infinity];
+            } else {
+                review_range = [0, Infinity];
             }
+
 
             const filteredData = jsonData.filter(restaurant => {
                 const restaurantRating = parseFloat(restaurant.rating) || 0;
@@ -467,13 +466,35 @@
                     );
 
                 const matchesRating = restaurantRating >= selectedRating;
-
                 const matchesReview = restaurantReview >= review_range[0] && restaurantReview <= review_range[1];
 
                 return matchesCategory && matchesRating && matchesReview;
             });
 
-            renderData(filteredData);
+            if (map.getSource('locations')) {
+                map.getSource('locations').setData({
+                    type: 'FeatureCollection',
+                    features: filteredData.map((location, index) => ({
+                        type: 'Feature',
+                        id: index,
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [location.longitude, location.latitude]
+                        },
+                        properties: {
+                            name: location.name,
+                            category1: location.category1,
+                            category2: location.category2,
+                            category3: location.category3,
+                            category4: location.category4,
+                            rating: location.rating,
+                            link: location.url,
+                            address: location.display_address,
+                            reviewCount: location.review_count
+                        }
+                    }))
+                });
+            }
         }
 
         // Map framework
@@ -538,6 +559,8 @@
         function renderData(data) {
             if (map.getSource('locations')) {
                 map.removeLayer('dots');
+                map.removeLayer('clusters');
+                map.removeLayer('cluster-count');
                 map.removeSource('locations');
             }
 
@@ -558,13 +581,52 @@
                             category2: location.category2,
                             category3: location.category3,
                             category4: location.category4,
-                            // comment: location.snippet_text,
                             rating: location.rating,
                             link: location.url,
                             address: location.display_address,
                             reviewCount: location.review_count
                         }
                     }))
+                },
+                cluster: true,
+                clusterMaxZoom: 12,
+                clusterRadius: 50
+            });
+            // Cluster 
+            map.addLayer({
+                id: 'clusters',
+                type: 'circle',
+                source: 'locations',
+                filter: ['has', 'point_count'],
+                paint: {
+                    'circle-radius': [
+                        'step', ['get', 'point_count'],
+                        15, 10,
+                        20, 50,
+                        25
+                    ],
+                    'circle-color': [
+                        'step', ['get', 'point_count'],
+                        '#fed7aa', 10,
+                        '#fdba74', 50,
+                        '#ea580c'
+                    ],
+                    'circle-opacity': 0.8
+                }
+            });
+
+            // Cluster Count 
+            map.addLayer({
+                id: 'cluster-count',
+                type: 'symbol',
+                source: 'locations',
+                filter: ['has', 'point_count'],
+                layout: {
+                    'text-field': '{point_count_abbreviated}',
+                    'text-size': 14
+                },
+                paint: {
+                    'text-color': '#000000'
                 }
             });
 
@@ -573,6 +635,7 @@
                 id: 'dots',
                 type: 'circle',
                 source: 'locations',
+                filter: ['!', ['has', 'point_count']],
                 paint: {
                     'circle-radius': [
                         'case',
@@ -642,7 +705,7 @@
                 categoryContainer.innerHTML = "";
 
                 const categories = [properties.category1, properties.category2, properties.category3, properties.category4]
-                .filter(cat => cat);
+                    .filter(cat => cat);
 
                 categories.forEach(cat => {
                     const span = document.createElement("span");
@@ -659,6 +722,20 @@
                 const yelpLink = document.getElementById("yelp-link");
                 yelpLink.href = properties.link;
             }
+
+            map.on('click', 'clusters', (e) => {
+                const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+                const clusterId = features[0].properties.cluster_id;
+
+                map.getSource('locations').getClusterExpansionZoom(clusterId, (err, zoom) => {
+                    if (err) return;
+
+                    map.easeTo({
+                        center: features[0].geometry.coordinates,
+                        zoom: zoom
+                    });
+                });
+            });
 
             // When a new point is hovered
             map.on('mouseenter', 'dots', (e) => {
@@ -696,16 +773,16 @@
                             );
                             map.setFeatureState(
                                 { source: 'locations', id: featureId },
-                            { hover: true }
+                                { hover: true }
                             );
-                        moveFeatureToEnd(featureId);
+                            moveFeatureToEnd(featureId);
 
-                        lastHoveredFeatureId = featureId;
+                            lastHoveredFeatureId = featureId;
+                        }
+                        updateSidebar(e.features[0].properties);
                     }
-                    updateSidebar(e.features[0].properties);
-                }
 
-                currentHoveredFeatureId = featureId;
+                    currentHoveredFeatureId = featureId;
                 }
             });
 
@@ -714,7 +791,7 @@
 
                 currentHoveredFeatureId = null;
             });
-    
+
             document.getElementById("close-sidebar").addEventListener("click", () => {
                 document.querySelector(".sidebar").style.display = "none";
                 if (lastHoveredFeatureId !== null) {
