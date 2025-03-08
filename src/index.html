@@ -601,15 +601,15 @@
                 paint: {
                     'circle-radius': [
                         'step', ['get', 'point_count'],
-                        15, 10,
-                        20, 40,
-                        25
+                        20, 10,
+                        25, 40,
+                        30
                     ],
                     'circle-color': [
                         'step', ['get', 'point_count'],
-                        '#fed7aa', 10,
-                        '#fdba74', 40,
-                        '#ea580c'
+                        '#fdba74', 10,
+                        '#ea580c', 40,
+                        '#c2410c'
                     ],
                     'circle-opacity': 0.8
                 }
@@ -623,10 +623,10 @@
                 filter: ['has', 'point_count'],
                 layout: {
                     'text-field': '{point_count_abbreviated}',
-                    'text-size': 14
+                    'text-size': 16
                 },
                 paint: {
-                    'text-color': '#000000'
+                    'text-color': '#ffffff'
                 }
             });
 
