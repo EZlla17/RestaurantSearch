@@ -80,11 +80,13 @@
             width: 320px;
         }
 
-        #toolbar h1{
+        #toolbar h1 {
             font-size: 26px;
         }
 
-        #category-container, #rating-container, #review-container{
+        #category-container,
+        #rating-container,
+        #review-container {
             padding: 10px;
             border-radius: 10px;
             background-color: #fed7aa;
@@ -217,16 +219,18 @@
             font-size: 28px;
         }
 
-        #rating-container, #review-container {
+        #rating-container,
+        #review-container {
             display: flex;
             margin-top: 15px;
         }
 
-        #review-container{
+        #review-container {
             flex-direction: column;
         }
 
-        .rating-btn, .review-btn {
+        .rating-btn,
+        .review-btn {
             padding: 5px 10px;
             font-size: 14px;
             cursor: pointer;
@@ -236,7 +240,8 @@
             margin-right: 5px;
         }
 
-        .rating-btn.selected,  .review-btn.selected{
+        .rating-btn.selected,
+        .review-btn.selected {
             background-color: #fb923c;
             color: white;
         }
@@ -249,13 +254,12 @@
         }
 
         #geocoder-container {
-    position: absolute;
-    top: 10px;
-left:370px;
-    z-index: 2; 
-    width: 500px; 
-}
-
+            position: absolute;
+            top: 10px;
+            left: 370px;
+            z-index: 2;
+            width: 500px;
+        }
     </style>
 </head>
 
@@ -369,7 +373,7 @@ left:370px;
         // Initialize filters
         let selectedRating = 3.5;
         let selectedCategories = Array.from(document.querySelectorAll('.category-btn'))
-                .flatMap(btn => btn.dataset.category.split(" "));
+            .flatMap(btn => btn.dataset.category.split(" "));
 
         // Filter listeners
         document.querySelector("#clear-filters").addEventListener("click", () => {
@@ -383,7 +387,7 @@ left:370px;
             button.addEventListener("click", () => {
                 button.classList.toggle("selected");
                 selectedCategories = Array.from(document.querySelectorAll('.category-btn.selected'))
-                .flatMap(btn => btn.dataset.category.split(" "));
+                    .flatMap(btn => btn.dataset.category.split(" "));
 
                 filterData(selectedRating, selectedCategories, selectedReview);
             });
@@ -394,7 +398,7 @@ left:370px;
                 document.querySelectorAll('.rating-btn').forEach(btn => btn.classList.remove('selected'));
                 button.classList.add('selected');
                 selectedRating = parseFloat(button.dataset.rating);
-        
+
                 filterData(selectedRating, selectedCategories, selectedReview);
             });
         });
@@ -404,7 +408,7 @@ left:370px;
                 document.querySelectorAll('.review-btn').forEach(btn => btn.classList.remove('selected'));
                 button.classList.add('selected');
                 selectedReview = parseInt(button.dataset.review);
-        
+
                 filterData(selectedRating, selectedCategories, selectedReview);
             });
         });
@@ -463,15 +467,15 @@ left:370px;
         });
 
         //  Mapbox Geocoder 
-const geocoder = new MapboxGeocoder({
-    accessToken: mapboxgl.accessToken,
-    mapboxgl: mapboxgl,
-    marker: true,  
-    placeholder: "Search for your location...",
-    zoom: 14
-});
+        const geocoder = new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl,
+            marker: true,
+            placeholder: "Search for your location...",
+            zoom: 14
+        });
 
-document.getElementById('geocoder-container').appendChild(geocoder.onAdd(map));
+        document.getElementById('geocoder-container').appendChild(geocoder.onAdd(map));
 
 
         let jsonData = null;
@@ -543,39 +547,39 @@ document.getElementById('geocoder-container').appendChild(geocoder.onAdd(map));
                 }
             });
 
-          // Main dots layer
-          map.addLayer({
-    id: 'dots',
-    type: 'circle',
-    source: 'locations',
-    paint: {
-        'circle-radius': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            12,  
-            6  
-        ],
-        'circle-opacity':  [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            1,  
-            0.7   
-        ],
-        'circle-color': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            '#ea580c',  
-            '#fdba74'    
-        ],
-        'circle-stroke-width': [
-            'case',
-            ['boolean', ['feature-state', 'hover'], false],
-            3,  
-            0.5 
-        ],
-        'circle-stroke-color': '#ffffff'
-    }
-});
+            // Main dots layer
+            map.addLayer({
+                id: 'dots',
+                type: 'circle',
+                source: 'locations',
+                paint: {
+                    'circle-radius': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        12,
+                        6
+                    ],
+                    'circle-opacity': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        1,
+                        0.7
+                    ],
+                    'circle-color': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        '#ea580c',
+                        '#fdba74'
+                    ],
+                    'circle-stroke-width': [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        3,
+                        0.5
+                    ],
+                    'circle-stroke-color': '#ffffff'
+                }
+            });
 
 
 
@@ -583,20 +587,31 @@ document.getElementById('geocoder-container').appendChild(geocoder.onAdd(map));
 
             let lastHoveredFeatureId = null;
 
+            // make sure the hovered is always on top
+            function moveFeatureToEnd(featureId) {
+                const source = map.getSource('locations');
+                if (!source) return;
+
+                const data = source._data;
+
+                const featureIndex = data.features.findIndex(f => f.id === featureId);
+                if (featureIndex === -1) return;
+                const [feature] = data.features.splice(featureIndex, 1);
+                data.features.push(feature);
+                source.setData(data);
+            }
+
             map.on('mouseenter', 'dots', (e) => {
-                
+
                 map.getCanvas().style.cursor = 'pointer';
                 const featureId = e.features[0].id;
 
-                // Reset the previous hovered feature
                 if (lastHoveredFeatureId !== null) {
                     map.setFeatureState(
                         { source: 'locations', id: lastHoveredFeatureId },
                         { hover: false }
                     );
                 }
-
-                // Set the new hovered feature
                 map.setFeatureState(
                     { source: 'locations', id: featureId },
                     { hover: true }
@@ -644,9 +659,42 @@ document.getElementById('geocoder-container').appendChild(geocoder.onAdd(map));
                 yelpLink.href = properties.link;
             });
 
+            map.on('mousemove', 'dots', (e) => {
+                if (e.features.length > 0) {
+                    const featureId = e.features[0].id;
+
+                    if (lastHoveredFeatureId !== featureId) {
+                        if (lastHoveredFeatureId !== null) {
+                            map.setFeatureState(
+                                { source: 'locations', id: lastHoveredFeatureId },
+                                { hover: false }
+                            );
+                        }
+                        map.setFeatureState(
+                            { source: 'locations', id: featureId },
+                            { hover: true }
+                        );
+
+                        moveFeatureToEnd(featureId);
+
+                        lastHoveredFeatureId = featureId;
+                    }
+                }
+            });
+
+
             map.on('mouseleave', 'dots', () => {
                 map.getCanvas().style.cursor = '';
+                if (lastHoveredFeatureId !== null) {
+                    map.setFeatureState(
+                        { source: 'locations', id: lastHoveredFeatureId },
+                        { hover: false }
+                    );
+                }
+                lastHoveredFeatureId = null;
             });
+
+      
 
             document.getElementById("close-sidebar").addEventListener("click", () => {
                 document.querySelector(".sidebar").style.display = "none";
