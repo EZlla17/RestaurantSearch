@@ -247,6 +247,15 @@
             margin-bottom: -45px;
             margin-top: -45px;
         }
+
+        #geocoder-container {
+    position: absolute;
+    top: 10px;
+left:370px;
+    z-index: 2; 
+    width: 500px; 
+}
+
     </style>
 </head>
 
@@ -255,6 +264,8 @@
         <button id="filter-close-btn">×</button>
         <div id="filterbar">
             <h1>Explore food in Boston!</h1>
+            <div id="geocoder-container"></div>
+
             <div id="category-container">
                 <div style="margin-top: 5px;">Choose one or more categories:</div>
                 <div id="categories">
@@ -451,6 +462,18 @@
             zoom: 12
         });
 
+        //  Mapbox Geocoder 
+const geocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    mapboxgl: mapboxgl,
+    marker: true,  
+    placeholder: "Search for your location...",
+    zoom: 14
+});
+
+document.getElementById('geocoder-container').appendChild(geocoder.onAdd(map));
+
+
         let jsonData = null;
         let selectMode = false;
         let marker = null;
@@ -520,33 +543,43 @@
                 }
             });
 
-            map.addLayer({
-                id: 'dots',
-                type: 'circle',
-                source: 'locations',
-                paint: {
-                    'circle-radius': [
-                        'case',
-                        ['boolean', ['feature-state', 'hover'], false],
-                        10,
-                        6
-                    ],
-                    'circle-opacity': 0.8,
-                    'circle-color': [
-                        'case',
-                        ['boolean', ['feature-state', 'hover'], false],
-                        '#ea580c',
-                        '#fdba74'
-                    ],
-                    'circle-stroke-width': [
-                        'case',
-                        ['boolean', ['feature-state', 'hover'], false],
-                        3,
-                        1
-                    ],
-                    'circle-stroke-color': '#d1d5db'
-                }
-            });
+          // Main dots layer
+          map.addLayer({
+    id: 'dots',
+    type: 'circle',
+    source: 'locations',
+    paint: {
+        'circle-radius': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            12,  
+            6  
+        ],
+        'circle-opacity':  [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            1,  
+            0.7   
+        ],
+        'circle-color': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            '#ea580c',  
+            '#fdba74'    
+        ],
+        'circle-stroke-width': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            3,  
+            0.5 
+        ],
+        'circle-stroke-color': '#ffffff'
+    }
+});
+
+
+
+
 
             let lastHoveredFeatureId = null;
 
