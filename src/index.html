@@ -248,7 +248,7 @@
 
         .rating-img {
             width: 200px;
-            height: auto;
+            height: 139px;
             margin-bottom: -45px;
             margin-top: -45px;
         }
@@ -343,8 +343,9 @@
             <span id="details-location"></span>
             <span id="details-categories">
             </span>
-            <div style="position: relative; left: -25px;">
+            <div style="position: relative; left: -25px; display: flex; flex-direction: row; width:500px">
                 <img id="details-rating" class="rating-img" src="stars35.png" alt="Rating Stars">
+                <p id="rateCount" style="padding-top: 5px; width:150px"></p>
             </div>
             <span id="details-link" style="position: relative; z-index: 99;">
                 See details:
@@ -541,7 +542,8 @@
                             // comment: location.snippet_text,
                             rating: location.rating,
                             link: location.url,
-                            address: location.display_address
+                            address: location.display_address,
+                            reviewCount: location.review_count
                         }
                     }))
                 }
@@ -634,6 +636,7 @@
                     5.0: "stars5.png"
                 };
                 document.getElementById("details-rating").src = ratingMap[rating] || "stars35.png";
+                document.getElementById("rateCount").textContent = "based on " + properties.reviewCount + " reviews";
 
                 const categoryContainer = document.getElementById("details-categories");
                 categoryContainer.innerHTML = "";
